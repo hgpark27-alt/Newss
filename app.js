@@ -534,7 +534,6 @@ async function init() {
     raw = MOCK;
   }
 
-  document.getElementById('mockBanner').style.display = mock ? 'flex' : 'none';
   state.articles = process(raw);
   if (state.settings.highFirst) state.articles.sort((a, b) => b.score - a.score);
 
