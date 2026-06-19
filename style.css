@@ -100,8 +100,8 @@ body{
 .nav-logo{
   width:30px;height:30px;border-radius:7px;
   background:var(--ore);display:flex;align-items:center;justify-content:center;
-  font-size:11px;font-weight:900;color:#fff;letter-spacing:-.3px;font-family:'JetBrains Mono',monospace;
   box-shadow:0 2px 8px var(--ore-g);
+  flex-shrink:0;
 }
 .nav-name{
   font-size:13px;font-weight:800;letter-spacing:.8px;
