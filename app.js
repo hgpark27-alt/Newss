@@ -39,12 +39,18 @@ const IMP_KW = {
 
 // ── 주가 모의 데이터 ──
 const MARKET = [
-  { label:'SOX Index',   value:'4,821.50', change:'-1.24%', up:false },
-  { label:'TSMC (TSM)',  value:'148.12',   change:'+2.15%', up:true  },
-  { label:'ASML',        value:'921.44',   change:'-0.45%', up:false },
-  { label:'NVIDIA',      value:'894.20',   change:'+0.88%', up:true  },
-  { label:'SK하이닉스',  value:'₩198,500', change:'+1.32%', up:true  },
-  { label:'Micron (MU)', value:'118.34',   change:'+3.02%', up:true  },
+  { label:'SOX Index',  ticker:'INDEX',  value:'4,821.50', change:'-1.24%', up:false,
+    spark:'M0,22 C70,28 140,40 210,52 S330,64 400,72' },
+  { label:'TSMC',       ticker:'TSM',    value:'148.12',   change:'+2.15%', up:true,
+    spark:'M0,68 C70,60 140,50 210,36 S330,20 400,12' },
+  { label:'ASML',       ticker:'ASML',   value:'921.44',   change:'-0.45%', up:false,
+    spark:'M0,28 C100,32 200,40 300,48 L400,56' },
+  { label:'NVIDIA',     ticker:'NVDA',   value:'894.20',   change:'+0.88%', up:true,
+    spark:'M0,62 C80,56 160,48 240,38 S350,26 400,20' },
+  { label:'SK하이닉스', ticker:'000660', value:'₩198,500', change:'+1.32%', up:true,
+    spark:'M0,66 C90,58 180,46 280,34 L400,24' },
+  { label:'Micron',     ticker:'MU',     value:'118.34',   change:'+3.02%', up:true,
+    spark:'M0,74 C60,62 130,48 200,34 S320,14 400,6' },
 ];
 
 // ── 25개 샘플 뉴스 ──
@@ -327,12 +333,33 @@ function renderTicker() {
 
 // ── Market strip ──
 function renderMarket() {
+  const sc = m => m.up ? 'var(--grn)' : 'var(--red)';
   document.getElementById('marketStrip').innerHTML = MARKET.map(m => `
-    <div class="mkt-card ${m.up ? 'mkt-card--up' : 'mkt-card--dn'}">
-      <div class="mkt-label">${m.label}</div>
-      <div class="mkt-value">${m.value}</div>
-      <div class="mkt-change ${m.up ? 'mkt-up' : 'mkt-dn'}">${m.change}</div>
+    <div class="mkt-card ${m.up ? 'mkt-card--up':'mkt-card--dn'}">
+      <div class="mkt-top">
+        <div>
+          <div class="mkt-name">${m.label}</div>
+          <div class="mkt-ticker">${m.ticker}</div>
+        </div>
+        <div class="mkt-change ${m.up ? 'mkt-up':'mkt-dn'}">${m.change}</div>
+      </div>
+      <div class="mkt-price">${m.value}</div>
+      <div class="mkt-spark">
+        <svg viewBox="0 0 400 80" preserveAspectRatio="none" fill="none">
+          <path d="${m.spark}" stroke="${sc(m)}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
     </div>`).join('');
+
+  document.querySelectorAll('.mkt-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const x = ((e.clientX - r.left) / r.width  - 0.5) * 10;
+      const y = ((e.clientY - r.top)  / r.height - 0.5) * -10;
+      card.style.transform = `perspective(700px) rotateX(${y}deg) rotateY(${x}deg) translateY(-5px)`;
+    });
+    card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+  });
 }
 
 // ── Stats bar ──
