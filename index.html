@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>반도체 뉴스 인텔리전스</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- 배경 오브 -->
+<div class="bg-orbs" aria-hidden="true">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<!-- ── Nav ── -->
+<nav class="nav">
+  <a class="nav-brand" href="#">
+    <div class="nav-brand-dot"></div>
+    <span class="nav-brand-name">SEMI</span>
+    <span class="nav-brand-sub">인텔리전스</span>
+  </a>
+  <div class="nav-divider"></div>
+  <div class="status-wrap">
+    <div class="status-dot"></div>
+    <span id="statusText">로딩 중...</span>
+  </div>
+  <div class="nav-spacer"></div>
+  <button class="btn-icon" id="btnReport"   title="일일 리포트">📋</button>
+  <button class="btn-icon" id="btnSettings" title="설정">⚙️</button>
+</nav>
+
+<!-- ── Main ── -->
+<div class="main">
+
+  <div class="banner crash" id="crashBanner"></div>
+  <div class="banner mock"  id="mockBanner">
+    ⚠️ 샘플 데이터 표시 중 — 설정에서 GNews API 키를 입력하면 실시간으로 전환됩니다.
+  </div>
+
+  <!-- 통계 바 -->
+  <div class="stats-bar" id="statsBar">
+    <span class="stat">로딩 중...</span>
+  </div>
+
+  <!-- 주가 스트립 -->
+  <div class="market-strip" id="marketStrip"></div>
+
+  <!-- 주요 기사 -->
+  <div class="featured" id="featured"></div>
+
+  <!-- 섹터 칩 -->
+  <div class="chip-bar" id="chipBar">
+    <button class="chip active" data-seg="">전체</button>
+    <button class="chip" data-seg="Foundry">파운드리</button>
+    <button class="chip" data-seg="Equipment">장비/소재</button>
+    <button class="chip" data-seg="Memory">메모리</button>
+    <button class="chip" data-seg="Logic">설계/로직</button>
+    <button class="chip" data-seg="Materials">소재</button>
+  </div>
+
+  <!-- 필터 -->
+  <div class="filter-bar">
+    <span class="filter-label">필터</span>
+    <select class="filter-select" id="fReg">
+      <option value="">전체 지역</option>
+      <option value="US">미국</option>
+      <option value="Korea">한국</option>
+      <option value="Taiwan">대만</option>
+      <option value="Japan">일본</option>
+      <option value="China">중국</option>
+      <option value="Europe">유럽</option>
+    </select>
+    <select class="filter-select" id="fImp">
+      <option value="">전체 중요도</option>
+      <option value="high">● 고중요</option>
+      <option value="medium">● 중간</option>
+      <option value="normal">○ 낮음</option>
+    </select>
+    <input type="text" class="filter-search" id="fSearch" placeholder="키워드 검색...">
+    <span class="filter-count" id="fCount"></span>
+  </div>
+
+  <!-- 뉴스 리스트 -->
+  <div class="news-list" id="newsGrid">
+    <div class="empty"><div class="ico">⏳</div><p>뉴스를 불러오는 중...</p></div>
+  </div>
+
+</div>
+
+<!-- ── 설정 모달 ── -->
+<div class="overlay" id="settingsModal">
+  <div class="modal">
+    <div class="modal-head">
+      <span>⚙️</span>
+      <span class="modal-title">설정</span>
+      <button class="modal-close" data-close="settingsModal">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="s-group">
+        <label class="s-label">데이터 소스</label>
+        <select class="s-input" id="sSrc">
+          <option value="mock">샘플 데이터 (오프라인)</option>
+          <option value="gnews">GNews API (실시간)</option>
+        </select>
+      </div>
+      <div class="s-group" id="apiKeyGroup" style="display:none">
+        <label class="s-label">GNews API Key</label>
+        <input type="text" class="s-input" id="sApiKey" placeholder="API 키를 입력하세요...">
+      </div>
+      <div class="s-group">
+        <label class="s-label">표시 설정</label>
+        <div class="s-row">
+          <div>
+            <div class="s-row-label">한국어 우선 표시</div>
+            <div class="s-row-sub">번역된 제목/요약을 먼저 표시합니다</div>
+          </div>
+          <label class="toggle"><input type="checkbox" id="sKoFirst" checked><span class="toggle-track"></span></label>
+        </div>
+        <div class="s-row">
+          <div>
+            <div class="s-row-label">고중요도 우선 정렬</div>
+            <div class="s-row-sub">중요도 점수 기준 내림차순 정렬</div>
+          </div>
+          <label class="toggle"><input type="checkbox" id="sHighFirst" checked><span class="toggle-track"></span></label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost"   data-close="settingsModal">취소</button>
+      <button class="btn btn-primary" id="btnSave">저장 및 새로고침</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 리포트 모달 ── -->
+<div class="overlay" id="reportModal">
+  <div class="modal wide">
+    <div class="modal-head">
+      <span>📋</span>
+      <span class="modal-title">일일 반도체 시장 인텔리전스 리포트</span>
+      <button class="modal-close" data-close="reportModal">✕</button>
+    </div>
+    <div class="modal-body" id="reportBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost"   data-close="reportModal">닫기</button>
+      <button class="btn btn-primary" id="btnPrint">🖨️ PDF 저장</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
