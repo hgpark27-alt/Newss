@@ -137,23 +137,21 @@ body{
 
 /* ─── Intel bar ─── */
 .intel-bar{
-  display:flex;align-items:baseline;gap:10px;
-  padding:12px 16px;margin-top:14px;
-  background:linear-gradient(135deg,rgba(255,92,0,.06) 0%,rgba(255,92,0,.02) 100%);
-  border:1px solid rgba(255,92,0,.18);
-  border-left:3px solid var(--ore);
-  border-radius:8px;
+  display:flex;align-items:center;gap:0;
+  padding:11px 0;margin-top:12px;
+  border-top:1px solid var(--bd);
+  border-bottom:1px solid var(--bd);
 }
 .intel-label{
-  flex-shrink:0;font-size:8px;font-weight:900;
-  letter-spacing:1.4px;text-transform:uppercase;
-  color:var(--ore);padding:2px 7px;
-  background:rgba(255,92,0,.1);border-radius:3px;
-  align-self:center;
+  flex-shrink:0;
+  font-size:8px;font-weight:900;letter-spacing:2px;text-transform:uppercase;
+  color:var(--ore);white-space:nowrap;
+  padding-right:14px;margin-right:14px;
+  border-right:1px solid var(--bd2);
 }
 .intel-text{
-  font-size:13px;font-weight:500;color:var(--tx);
-  line-height:1.5;letter-spacing:-.1px;
+  font-size:13px;font-weight:400;font-style:italic;
+  color:var(--tx2);line-height:1.55;
 }
 
 /* ─── Stats bar ─── */
@@ -268,17 +266,16 @@ body{
   padding:12px 0;border-bottom:1px solid var(--bd);
 }
 .chip{
-  padding:5px 14px;border-radius:20px;
-  font-size:11px;font-weight:700;cursor:pointer;
-  border:1px solid var(--bd2);background:transparent;
-  color:var(--tx2);font-family:inherit;white-space:nowrap;
-  transition:all .13s;letter-spacing:.1px;
+  padding:5px 13px;border-radius:4px;
+  font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;
+  cursor:pointer;border:1px solid var(--bd2);background:transparent;
+  color:var(--tx3);font-family:inherit;white-space:nowrap;
+  transition:all .13s;
 }
-.chip:hover{border-color:var(--ore);color:var(--ore);background:var(--ore-g2)}
+.chip:hover{color:var(--tx);border-color:var(--tx3)}
 .chip.active{
-  background:var(--ore);color:#fff;
-  border-color:var(--ore);
-  box-shadow:0 2px 10px var(--ore-g);
+  background:var(--tx);color:var(--bg);
+  border-color:var(--tx);
 }
 
 /* ─── Filter bar ─── */
@@ -333,16 +330,25 @@ body{
 
 /* ─── Badges ─── */
 .cat-tag{
-  display:inline-block;padding:2px 7px;border-radius:4px;
-  font-size:9px;font-weight:800;letter-spacing:.4px;
+  display:inline-block;
+  padding:2px 7px 2px 9px;
+  border-radius:2px;
+  font-size:8px;font-weight:800;letter-spacing:.6px;
   text-transform:uppercase;white-space:nowrap;
+  background:transparent;
+  position:relative;
 }
-.cat-foundry  {background:rgba(255,92,0,.1);  color:#C84400}
-.cat-equipment{background:rgba(90,50,180,.1); color:#5B2DA8}
-.cat-memory   {background:rgba(5,150,105,.1); color:#047857}
-.cat-logic    {background:rgba(37,99,235,.1); color:#1D4ED8}
-.cat-materials{background:rgba(217,119,6,.1); color:#B45309}
-.cat-other    {background:var(--s2);          color:var(--tx3)}
+.cat-tag::before{
+  content:'';position:absolute;
+  left:0;top:50%;transform:translateY(-50%);
+  width:2px;height:10px;border-radius:1px;
+}
+.cat-foundry  {color:#C84400}.cat-foundry::before  {background:#FF5C00}
+.cat-equipment{color:#5B2DA8}.cat-equipment::before{background:#7B4ED0}
+.cat-memory   {color:#047857}.cat-memory::before   {background:#059669}
+.cat-logic    {color:#1D4ED8}.cat-logic::before    {background:#2563EB}
+.cat-materials{color:#B45309}.cat-materials::before{background:#D97706}
+.cat-other    {color:var(--tx3)}.cat-other::before {background:var(--s3)}
 
 .reg-tag  {font-size:10px;color:var(--tx3)}
 .src-tag  {font-size:10px;color:var(--tx3)}
