@@ -447,37 +447,103 @@ function applyFilters() {
 }
 
 // ── Report ──
+const SEG_COLOR = {
+  Foundry:'#FF5C00', Equipment:'#7B4ED0', Memory:'#059669',
+  Logic:'#2563EB', Materials:'#D97706', Other:'#9BA3B2',
+};
+
 function generateReport() {
-  const today = new Date().toLocaleDateString('ko-KR', {year:'numeric', month:'long', day:'numeric'});
+  const now    = new Date();
+  const today  = now.toLocaleDateString('ko-KR', {year:'numeric', month:'long', day:'numeric'});
+  const time   = now.toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'});
+  const total  = state.articles.length;
   const high   = state.articles.filter(a => a.level === 'high');
   const medium = state.articles.filter(a => a.level === 'medium');
   const bySegMap = {};
   state.articles.forEach(a => { bySegMap[a.segment] = (bySegMap[a.segment] || 0) + 1; });
+  const regions = [...new Set(state.articles.map(a => a.region))].length;
 
-  const rows = items => items.slice(0, 8).map(a => `
-    <div class="report-row">
-      <span class="cat-tag ${catCssClass(a.segment)}">${segKo(a.segment)}</span>
-      <div><div class="report-txt">${a.title_ko}</div><div class="report-src">${a.source} · ${timeAgo(a.published_at)}</div></div>
-    </div>`).join('');
+  const rptCard = a => `
+    <div class="rpt-card" onclick="window.open('${a.url}','_blank')">
+      <div class="rpt-card-bar ${catCssClass(a.segment)}"></div>
+      <div class="rpt-card-body">
+        <div class="rpt-card-title">${a.title_ko}</div>
+        <div class="rpt-card-meta">
+          <span class="cat-tag ${catCssClass(a.segment)}">${segKo(a.segment)}</span>
+          <span class="rpt-card-src">${a.source}</span>
+          <span class="tag-sep">·</span>
+          <span class="rpt-card-time">${timeAgo(a.published_at)}</span>
+        </div>
+      </div>
+      <div class="rpt-card-arrow">↗</div>
+    </div>`;
+
+  const segRows = Object.entries(bySegMap)
+    .sort((a,b) => b[1] - a[1])
+    .map(([s, n]) => `
+      <div class="rpt-seg-row">
+        <span class="cat-tag ${catCssClass(s)}" style="min-width:64px;text-align:center">${segKo(s)}</span>
+        <div class="rpt-seg-track">
+          <div class="rpt-seg-fill" style="width:${Math.round(n/total*100)}%;background:${SEG_COLOR[s]||'#9BA3B2'}"></div>
+        </div>
+        <span class="rpt-seg-n">${n}</span>
+      </div>`).join('');
 
   document.getElementById('reportBody').innerHTML = `
-    <div class="report-top">
-      <h2>🏭 일일 반도체 시장 인텔리전스 리포트</h2>
-      <p>${today} 기준 · 총 ${state.articles.length}건 분석</p>
+    <div class="rpt-hero">
+      <div class="rpt-hero-date">${today}</div>
+      <div class="rpt-hero-meta">${time} 기준 발급</div>
     </div>
-    <div class="report-sec">
-      <h3>🔴 고중요도 (${high.length}건)</h3>
-      ${high.length ? rows(high) : '<p style="color:var(--text-sub);font-size:12px">해당 없음</p>'}
+
+    <div class="rpt-kpi-strip">
+      <div class="rpt-kpi">
+        <div class="rpt-kpi-n">${total}</div>
+        <div class="rpt-kpi-l">총 기사</div>
+      </div>
+      <div class="rpt-kpi rpt-kpi--hi">
+        <div class="rpt-kpi-n">${high.length}</div>
+        <div class="rpt-kpi-l">고중요</div>
+      </div>
+      <div class="rpt-kpi rpt-kpi--med">
+        <div class="rpt-kpi-n">${medium.length}</div>
+        <div class="rpt-kpi-l">주요</div>
+      </div>
+      <div class="rpt-kpi">
+        <div class="rpt-kpi-n">${regions}</div>
+        <div class="rpt-kpi-l">지역</div>
+      </div>
     </div>
-    <div class="report-sec">
-      <h3>🟡 주요 뉴스 (${medium.length}건)</h3>
-      ${medium.length ? rows(medium) : '<p style="color:var(--text-sub);font-size:12px">해당 없음</p>'}
+
+    <div class="rpt-section">
+      <div class="rpt-section-head">
+        <span class="rpt-badge rpt-badge--seg">섹터 현황</span>
+        <span class="rpt-sec-count">${Object.keys(bySegMap).length}개 섹터</span>
+      </div>
+      <div class="rpt-seg-grid">${segRows}</div>
     </div>
-    <div class="report-sec">
-      <h3>📊 섹터별 현황</h3>
-      ${Object.entries(bySegMap).map(([s, n]) => `
-        <div class="report-stat"><span>${segKo(s)}</span><strong>${n}건</strong></div>`).join('')}
+
+    <div class="rpt-section">
+      <div class="rpt-section-head">
+        <span class="rpt-badge rpt-badge--hi">긴급</span>
+        고중요도 뉴스
+        <span class="rpt-sec-count">${high.length}건</span>
+      </div>
+      ${high.length
+        ? high.slice(0,8).map(rptCard).join('')
+        : '<p style="font-size:12px;color:var(--tx3);padding:8px 0">해당 없음</p>'}
+    </div>
+
+    <div class="rpt-section">
+      <div class="rpt-section-head">
+        <span class="rpt-badge rpt-badge--med">주요</span>
+        주목 뉴스
+        <span class="rpt-sec-count">${medium.length}건</span>
+      </div>
+      ${medium.length
+        ? medium.slice(0,8).map(rptCard).join('')
+        : '<p style="font-size:12px;color:var(--tx3);padding:8px 0">해당 없음</p>'}
     </div>`;
+
   openModal('reportModal');
 }
 
@@ -498,6 +564,33 @@ function bindEvents() {
   document.getElementById('btnReport').onclick   = generateReport;
   document.getElementById('btnSave').onclick     = saveSettings;
   document.getElementById('btnPrint').onclick    = () => window.print();
+  document.querySelectorAll('.s-freq-btn').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.s-freq-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const hint = document.querySelector('.s-subscribe-hint');
+      hint.textContent = btn.dataset.freq === 'weekly'
+        ? '매주 월요일 오전 8시 · 반도체 주간 브리핑 발송'
+        : '매월 1일 오전 8시 · 반도체 월간 브리핑 발송';
+    };
+  });
+  document.getElementById('btnSubscribe').onclick = () => {
+    const email = document.getElementById('sEmail').value.trim();
+    const btn   = document.getElementById('btnSubscribe');
+    const freq  = document.querySelector('.s-freq-btn.active')?.dataset.freq || 'weekly';
+    if (!email || !email.includes('@')) {
+      document.getElementById('sEmail').focus();
+      return;
+    }
+    btn.textContent = '✓ 구독 완료';
+    btn.classList.add('subscribed');
+    document.querySelector('.s-subscribe-hint').textContent =
+      `${email} 으로 ${freq === 'weekly' ? '주간' : '월간'} 리포트가 발송됩니다`;
+    setTimeout(() => {
+      btn.textContent = '구독 설정 저장';
+      btn.classList.remove('subscribed');
+    }, 3000);
+  };
   document.getElementById('sSrc').onchange = function() {
     document.getElementById('apiKeyGroup').style.display = this.value === 'gnews' ? 'block' : 'none';
   };

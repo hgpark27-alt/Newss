@@ -158,6 +158,16 @@
           <label class="toggle"><input type="checkbox" id="sHighFirst" checked><span class="toggle-track"></span></label>
         </div>
       </div>
+      <div class="s-group">
+        <label class="s-label">이메일 리포트 구독</label>
+        <input type="email" class="s-input" id="sEmail" placeholder="수신 이메일 주소">
+        <div class="s-email-row">
+          <button class="s-freq-btn active" data-freq="weekly">주간</button>
+          <button class="s-freq-btn" data-freq="monthly">월간</button>
+        </div>
+        <button class="btn btn-subscribe" id="btnSubscribe">구독 설정 저장</button>
+        <div class="s-subscribe-hint">매주 월요일 오전 8시 · 반도체 주간 브리핑 발송</div>
+      </div>
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost"   data-close="settingsModal">취소</button>
