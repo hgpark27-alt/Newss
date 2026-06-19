@@ -120,11 +120,12 @@ body{
 
 .btn-icon{
   display:flex;align-items:center;justify-content:center;
-  width:32px;height:32px;background:var(--s2);
-  border:1px solid var(--bd);border-radius:7px;
-  cursor:pointer;color:var(--tx2);font-size:14px;transition:all .14s;
+  width:32px;height:32px;background:transparent;
+  border:1px solid var(--bd2);border-radius:7px;
+  cursor:pointer;color:var(--tx3);transition:all .16s;
 }
-.btn-icon:hover{background:var(--s3);color:var(--tx);border-color:var(--bd2)}
+.btn-icon:hover{background:var(--s2);color:var(--ore);border-color:var(--ore);box-shadow:0 0 0 3px var(--ore-g)}
+.btn-icon svg{display:block}
 
 /* ─── Main ─── */
 .main{padding:0 32px 60px;max-width:1160px;margin:0 auto;position:relative;z-index:1}
