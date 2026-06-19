@@ -1,6 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- 배경 -->
   <rect width="64" height="64" rx="14" fill="#FF5C00"/>
-  <text x="32" y="43" text-anchor="middle"
-    font-family="system-ui,-apple-system,sans-serif"
-    font-weight="900" font-size="28" fill="white" letter-spacing="-1">Si</text>
+  <!-- 웨이퍼 외곽 (하단 플랫 노치) -->
+  <path d="M45 47 A20 20 0 1 0 19 47 Z"
+        fill="rgba(255,255,255,0.13)"
+        stroke="white" stroke-width="2.2" stroke-linejoin="round"/>
+  <!-- 내부 동심원 -->
+  <circle cx="32" cy="32" r="11"
+          fill="none"
+          stroke="rgba(255,255,255,0.5)" stroke-width="1.6"/>
+  <!-- 중앙 코어 -->
+  <circle cx="32" cy="32" r="3.5" fill="white"/>
 </svg>
