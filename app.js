@@ -201,8 +201,6 @@ const MOCK = [
 ];
 
 // ── App state ──
-// 라이트모드 고정
-document.documentElement.classList.add('light');
 
 let state = {
   articles: [],
@@ -314,6 +312,19 @@ async function translate(text) {
   } catch { return text; }
 }
 
+// ── Ticker tape ──
+function renderTicker() {
+  const wrap = document.getElementById('tickerWrap');
+  if (!wrap) return;
+  const items = MARKET.map(m => `
+    <div class="ticker-item">
+      <span class="ticker-name">${m.label}</span>
+      <span class="ticker-val">${m.value}</span>
+      <span class="${m.up ? 'ticker-up' : 'ticker-dn'}">${m.up ? '▲' : '▼'} ${m.change}</span>
+    </div>`).join('');
+  wrap.innerHTML = `<div class="ticker-track"><span class="ticker-label">SEMI·MKT</span>${items}${items}</div>`;
+}
+
 // ── Market strip ──
 function renderMarket() {
   document.getElementById('marketStrip').innerHTML = MARKET.map(m => `
@@ -335,19 +346,19 @@ function renderStats(articles) {
   });
   const today = new Date().toLocaleDateString('ko-KR', { year:'numeric', month:'2-digit', day:'2-digit' });
   document.getElementById('statsBar').innerHTML = `
-    <span class="stat">총 <strong>${total}</strong>건</span>
-    <span class="stat-div">·</span>
-    <span class="stat urgent">고중요 <strong>${high}</strong>건</span>
-    <span class="stat-div">·</span>
-    <span class="stat">파운드리 <strong>${bySeg.Foundry}</strong></span>
-    <span class="stat-div">·</span>
-    <span class="stat">장비 <strong>${bySeg.Equipment}</strong></span>
-    <span class="stat-div">·</span>
-    <span class="stat">메모리 <strong>${bySeg.Memory}</strong></span>
-    <span class="stat-div">·</span>
-    <span class="stat">설계 <strong>${bySeg.Logic}</strong></span>
-    <span class="stat-div">·</span>
-    <span class="stat">소재 <strong>${bySeg.Materials}</strong></span>
+    <div class="stat"><span class="stat-n">${total}</span><span class="stat-l">건</span></div>
+    <span class="stat-sep">·</span>
+    <div class="stat urgent"><span class="stat-n">${high}</span><span class="stat-l">고중요</span></div>
+    <span class="stat-sep">·</span>
+    <div class="stat"><span class="stat-n">${bySeg.Foundry}</span><span class="stat-l">파운드리</span></div>
+    <span class="stat-sep">·</span>
+    <div class="stat"><span class="stat-n">${bySeg.Equipment}</span><span class="stat-l">장비</span></div>
+    <span class="stat-sep">·</span>
+    <div class="stat"><span class="stat-n">${bySeg.Memory}</span><span class="stat-l">메모리</span></div>
+    <span class="stat-sep">·</span>
+    <div class="stat"><span class="stat-n">${bySeg.Logic}</span><span class="stat-l">설계</span></div>
+    <span class="stat-sep">·</span>
+    <div class="stat"><span class="stat-n">${bySeg.Materials}</span><span class="stat-l">소재</span></div>
     <span class="stat stat-date">${today}</span>
   `;
 }
@@ -361,7 +372,7 @@ function renderFeatured(articles) {
   const title   = state.settings.koFirst ? top.title_ko   : top.title_en;
   const summary = state.settings.koFirst ? top.summary_ko : top.summary_en;
   el.innerHTML = `
-    <div class="featured-eyebrow">주요 뉴스</div>
+    <div class="featured-eyebrow"><div class="featured-pulse"></div>주요 뉴스</div>
     <div class="featured-title" onclick="window.open('${top.url}','_blank')">${title}</div>
     <div class="featured-summary">${summary}</div>
     <div class="featured-meta">
@@ -527,6 +538,7 @@ async function init() {
   state.articles = process(raw);
   if (state.settings.highFirst) state.articles.sort((a, b) => b.score - a.score);
 
+  renderTicker();
   renderMarket();
   renderStats(state.articles);
   renderFeatured(state.articles);
