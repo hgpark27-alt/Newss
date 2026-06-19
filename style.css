@@ -135,6 +135,27 @@ body{
 .banner.crash{color:#991B1B;background:#FEF2F2;border:1px solid #FECACA}
 .banner.mock {color:#92400E;background:#FFFBEB;border:1px solid #FDE68A}
 
+/* ─── Intel bar ─── */
+.intel-bar{
+  display:flex;align-items:baseline;gap:10px;
+  padding:12px 16px;margin-top:14px;
+  background:linear-gradient(135deg,rgba(255,92,0,.06) 0%,rgba(255,92,0,.02) 100%);
+  border:1px solid rgba(255,92,0,.18);
+  border-left:3px solid var(--ore);
+  border-radius:8px;
+}
+.intel-label{
+  flex-shrink:0;font-size:8px;font-weight:900;
+  letter-spacing:1.4px;text-transform:uppercase;
+  color:var(--ore);padding:2px 7px;
+  background:rgba(255,92,0,.1);border-radius:3px;
+  align-self:center;
+}
+.intel-text{
+  font-size:13px;font-weight:500;color:var(--tx);
+  line-height:1.5;letter-spacing:-.1px;
+}
+
 /* ─── Stats bar ─── */
 .stats-bar{
   display:flex;align-items:center;flex-wrap:wrap;
