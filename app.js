@@ -328,10 +328,10 @@ function renderTicker() {
 // ── Market strip ──
 function renderMarket() {
   document.getElementById('marketStrip').innerHTML = MARKET.map(m => `
-    <div class="mkt-card">
+    <div class="mkt-card ${m.up ? 'mkt-card--up' : 'mkt-card--dn'}">
       <div class="mkt-label">${m.label}</div>
       <div class="mkt-value">${m.value}</div>
-      <div class="mkt-change ${m.up ? 'mkt-up' : 'mkt-dn'}">${m.up ? '▲' : '▼'} ${m.change}</div>
+      <div class="mkt-change ${m.up ? 'mkt-up' : 'mkt-dn'}">${m.change}</div>
     </div>`).join('');
 }
 
