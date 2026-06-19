@@ -1,24 +1,614 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html class="light" lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="color-scheme" content="light">
-<title>반도체 인텔리전스</title>
-<link rel="icon" type="image/svg+xml" href="favicon.svg?v=3">
-<style>
-  body { margin: 0; background: #FFF5E6; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-</style>
-<script>
-  (function () {
-    var w = window.innerWidth || document.documentElement.clientWidth;
-    if (w >= 1024) {
-      window.location.replace('pc.html');
-    } else {
-      window.location.replace('mobile.html');
-    }
-  })();
-</script>
+    <script>
+        (function(){
+            var mobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+                      || screen.width < 1024;
+            if(mobile) window.location.replace('mobile.html');
+        })();
+    </script>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>SemiLog - Semiconductor Intelligence Study Assistant</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+    <!-- Material Symbols -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#be0001",
+                        "secondary": "#FE4E00",
+                        "dark-plum": "#14000A",
+                        "background": "#FFF2D6",
+                        "surface": "#ffffff",
+                        "surface-container": "#fff0f4",
+                        "outline-variant": "#e8bcb5",
+                        "on-surface-variant": "#5e3f3a",
+                        "on-surface": "#301121",
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "sans": ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FFF2D6;
+            color: #14000A;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #936e68; border-radius: 3px; }
+
+        .nav-link.active {
+            color: #be0001;
+            border-bottom: 2px solid #be0001;
+            font-weight: 700;
+        }
+        .page-view {
+            display: none;
+        }
+        .page-view.active {
+            display: block;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
-<body></body>
+<body class="min-h-screen flex flex-col selection:bg-primary/20 selection:text-primary">
+    <!-- Global Header -->
+    <header class="fixed top-0 left-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-outline-variant/60 shadow-sm">
+        <div class="max-w-[1400px] mx-auto flex justify-between items-center w-full px-6 md:px-12 h-16">
+            <div class="flex items-center gap-6">
+                <a href="#" onclick="navigateTo('home')" class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-3xl font-bold">memory</span>
+                    <span class="font-sans text-2xl font-black text-primary tracking-tighter">SemiLog</span>
+                </a>
+                <nav class="hidden md:flex items-center gap-8 ml-8 h-full">
+                    <button onclick="navigateTo('home')" id="nav-home" data-i18n="nav_home" class="nav-link font-semibold text-sm hover:text-primary transition-all py-5">Home</button>
+                    <button onclick="navigateTo('dashboard')" id="nav-dashboard" data-i18n="nav_dashboard" class="nav-link font-semibold text-sm hover:text-primary transition-all py-5">Dashboard</button>
+                    <button onclick="navigateTo('feed')" id="nav-feed" data-i18n="nav_feed" class="nav-link font-semibold text-sm hover:text-primary transition-all py-5">News Feed</button>
+                    <button onclick="navigateTo('review')" id="nav-review" class="nav-link font-semibold text-sm hover:text-primary transition-all py-5">Review Notes</button>
+                    <button onclick="navigateTo('qa')" id="nav-qa" class="nav-link font-semibold text-sm hover:text-primary transition-all py-5">Technical Q&A</button>
+                </nav>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <!-- Language Toggle -->
+                <div class="flex items-center bg-background/50 border border-outline-variant rounded-lg p-1">
+                    <button onclick="changeLanguage('ko')" id="lang-ko" class="px-2.5 py-1 text-xs font-extrabold rounded transition-all bg-primary text-white">KO</button>
+                    <button onclick="changeLanguage('en')" id="lang-en" class="px-2.5 py-1 text-xs font-extrabold rounded transition-all text-dark-plum/70 hover:bg-background">EN</button>
+                </div>
+                <!-- User profile / status indicator -->
+                <div class="hidden sm:flex items-center gap-3 bg-background/40 border border-outline-variant px-3 py-1.5 rounded-full">
+                    <span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
+                    <span class="text-xs font-bold text-dark-plum/70 tracking-widest uppercase" data-i18n="system_online">System Online</span>
+                </div>
+                <button class="bg-primary text-white text-xs font-bold uppercase tracking-wider px-5 py-2.5 rounded-lg hover:bg-secondary transition-all active:scale-95" data-i18n="demo_user" onclick="alert('Signed in as demo user JD (Junior Developer)!')">
+                    Demo User: JD
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 pt-24 pb-12 w-full max-w-[1400px] mx-auto px-4 md:px-12">
+
+        <!-- PAGE 1: HOME VIEW -->
+        <section id="view-home" class="page-view fade-in">
+            <div class="relative min-h-[70vh] flex items-center justify-between overflow-hidden rounded-3xl border border-outline-variant bg-white p-8 md:p-12 mb-10 shadow-md">
+                <div class="relative z-10 max-w-2xl space-y-6">
+                    <div class="inline-flex items-center gap-3 px-4 py-1.5 border border-secondary text-secondary font-bold text-xs rounded-full bg-secondary/10 uppercase tracking-widest">
+                        <span class="w-2.5 h-2.5 rounded-full bg-secondary animate-ping"></span>
+                        <span data-i18n="home_tag">Next-Gen Semiconductor Intelligence</span>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold text-dark-plum tracking-tight leading-tight animate-fade-in-up" data-i18n-html="home_title">
+                        Precision <span class="text-primary">Semiconductor</span> Study Assistant for the Silicon Century
+                    </h1>
+                    <p class="text-on-surface-variant font-medium text-lg leading-relaxed" data-i18n="home_desc">
+                        Navigate the complexity of semiconductor processes—from Photolithography to Packaging. Access real-time industry updates, review checklists, and AI-powered technical Q&amp;A.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 pt-2">
+                        <button onclick="navigateTo('dashboard')" class="px-8 py-4 bg-primary text-white font-bold rounded-xl hover:bg-secondary hover:shadow-lg hover:shadow-primary/20 transition-all text-sm uppercase tracking-widest" data-i18n="home_btn_dash">
+                            Go to Dashboard
+                        </button>
+                        <button onclick="navigateTo('qa')" class="px-8 py-4 border-2 border-dark-plum text-dark-plum font-bold rounded-xl hover:bg-dark-plum hover:text-white transition-all text-sm uppercase tracking-widest" data-i18n="home_btn_qa">
+                            Ask AI Q&amp;A
+                        </button>
+                    </div>
+                </div>
+                <div class="hidden lg:block w-1/3 relative h-96">
+                    <div class="absolute inset-0 bg-contain bg-center bg-no-repeat opacity-90" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCxMTAuXG4chlVw8l6Vod2gQNkGS4Pq-TXmtrOloO3FyQA41rxfrg59AP2RngEmpuRMwtwofSWyDdlWtjzormUYnt1xb6L0OaLCJnbnFsnMELsF5gbD23AMSb9zlxmYIZENqxi4DrzowlB0BctLXnZ6cDaGa6W2Rv6H8myMBzs1S_PjIqgGjhWt1g5tXYXc2MmTX0ve7WgsO4qUOzSMXkMQRoPtUmbV4eKm92EwNE7AeaYMT6yW_lR3_xNjYBzG0v5GkhyLEOYPugI')"></div>
+                </div>
+            </div>
+
+            <!-- 8 Great Semiconductor Processes Grid -->
+            <div class="mb-12">
+                <h2 class="text-2xl font-bold mb-6 text-dark-plum tracking-tight flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-3xl">grid_view</span>
+                    <span data-i18n="home_processes_title">The 8 Great Semiconductor Processes</span>
+                </h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div onclick="navigateTo('review'); filterByProcess('Photolithography');" class="bg-white border border-outline-variant p-6 rounded-2xl cursor-pointer hover:border-secondary hover:shadow-md transition-all text-center">
+                        <span class="material-symbols-outlined text-primary text-4xl mb-2">light_mode</span>
+                        <h3 class="font-bold text-sm text-dark-plum">1. Photolithography</h3>
+                    </div>
+                    <div onclick="navigateTo('review'); filterByProcess('Etching');" class="bg-white border border-outline-variant p-6 rounded-2xl cursor-pointer hover:border-secondary hover:shadow-md transition-all text-center">
+                        <span class="material-symbols-outlined text-primary text-4xl mb-2">content_cut</span>
+                        <h3 class="font-bold text-sm text-dark-plum">2. Etching</h3>
+                    </div>
+                    <div onclick="navigateTo('review'); filterByProcess('Deposition');" class="bg-white border border-outline-variant p-6 rounded-2xl cursor-pointer hover:border-secondary hover:shadow-md transition-all text-center">
+                        <span class="material-symbols-outlined text-primary text-4xl mb-2">layers</span>
+                        <h3 class="font-bold text-sm text-dark-plum">3. Deposition & Thin Film</h3>
+                    </div>
+                    <div onclick="navigateTo('review'); filterByProcess('Oxidation');" class="bg-white border border-outline-variant p-6 rounded-2xl cursor-pointer hover:border-secondary hover:shadow-md transition-all text-center">
+                        <span class="material-symbols-outlined text-primary text-4xl mb-2">thermostat</span>
+                        <h3 class="font-bold text-sm text-dark-plum">4. Oxidation & Diffusion</h3>
+                    </div>
+                    <div onclick="navigateTo('review'); filterByProcess('Ion Implantation');" class="bg-white border border-outline-variant p-6 rounded-2xl cursor-pointer hover:border-secondary hover:shadow-md transition-all text-center">
+                        <span class="material-symbols-outlined text-primary text-4xl mb-2">bolt</span>
+                        <h3 class="font-bold text-sm text-dark-plum">5. Ion Implantation</h3>
+                    </div>
+                    <div onclick="navigateTo('review'); filterByProcess('Metallization');" class="bg-white border border-outline-variant p-6 rounded-2xl cursor-pointer hover:border-secondary hover:shadow-md transition-all text-center">
+                        <span class="material-symbols-outlined text-primary text-4xl mb-2">settings_ethernet</span>
+                        <h3 class="font-bold text-sm text-dark-plum">6. Metallization</h3>
+                    </div>
+                    <div onclick="navigateTo('review'); filterByProcess('EDS');" class="bg-white border border-outline-variant p-6 rounded-2xl cursor-pointer hover:border-secondary hover:shadow-md transition-all text-center">
+                        <span class="material-symbols-outlined text-primary text-4xl mb-2">check_circle</span>
+                        <h3 class="font-bold text-sm text-dark-plum">7. EDS (Wafer Test)</h3>
+                    </div>
+                    <div onclick="navigateTo('review'); filterByProcess('Packaging');" class="bg-white border border-outline-variant p-6 rounded-2xl cursor-pointer hover:border-secondary hover:shadow-md transition-all text-center">
+                        <span class="material-symbols-outlined text-primary text-4xl mb-2">inventory_2</span>
+                        <h3 class="font-bold text-sm text-dark-plum">8. Packaging</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 2: DASHBOARD VIEW -->
+        <section id="view-dashboard" class="page-view fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Column 1: Stats & Chart -->
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-white border border-outline-variant rounded-2xl p-6 shadow-sm">
+                        <h2 class="text-xl font-bold mb-4 text-dark-plum flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">analytics</span>
+                            <span data-i18n="dash_chart_title">Semiconductor Process Yield Curve</span>
+                        </h2>
+                        <!-- Simple Yield Chart (SVG) -->
+                        <div class="relative bg-surface-container rounded-xl p-4 flex items-center justify-center">
+                            <svg viewBox="0 0 500 200" class="w-full h-48">
+                                <!-- Grid Lines -->
+                                <line x1="50" y1="20" x2="480" y2="20" stroke="#e8bcb5" stroke-dasharray="3,3" />
+                                <line x1="50" y1="70" x2="480" y2="70" stroke="#e8bcb5" stroke-dasharray="3,3" />
+                                <line x1="50" y1="120" x2="480" y2="120" stroke="#e8bcb5" stroke-dasharray="3,3" />
+                                <line x1="50" y1="170" x2="480" y2="170" stroke="#e8bcb5" />
+
+                                <!-- Axes Labels -->
+                                <text x="15" y="25" class="text-[10px] font-bold fill-dark-plum/60">100%</text>
+                                <text x="15" y="75" class="text-[10px] font-bold fill-dark-plum/60">80%</text>
+                                <text x="15" y="125" class="text-[10px] font-bold fill-dark-plum/60">60%</text>
+                                <text x="15" y="175" class="text-[10px] font-bold fill-dark-plum/60">40%</text>
+
+                                <!-- X axis Labels -->
+                                <text x="70" y="190" class="text-[9px] font-bold fill-dark-plum/60">Photo</text>
+                                <text x="130" y="190" class="text-[9px] font-bold fill-dark-plum/60">Etch</text>
+                                <text x="190" y="190" class="text-[9px] font-bold fill-dark-plum/60">Depo</text>
+                                <text x="250" y="190" class="text-[9px] font-bold fill-dark-plum/60">Oxide</text>
+                                <text x="310" y="190" class="text-[9px] font-bold fill-dark-plum/60">Impl.</text>
+                                <text x="370" y="190" class="text-[9px] font-bold fill-dark-plum/60">Metal</text>
+                                <text x="430" y="190" class="text-[9px] font-bold fill-dark-plum/60">Pkg</text>
+
+                                <!-- Yield Plot Line -->
+                                <path d="M 70,50 L 130,45 L 190,55 L 250,30 L 310,60 L 370,40 L 430,25" fill="none" stroke="#be0001" stroke-width="3" />
+
+                                <!-- Dots -->
+                                <circle cx="70" cy="50" r="4" fill="#FE4E00" />
+                                <circle cx="130" cy="45" r="4" fill="#FE4E00" />
+                                <circle cx="190" cy="55" r="4" fill="#FE4E00" />
+                                <circle cx="250" cy="30" r="4" fill="#FE4E00" />
+                                <circle cx="310" cy="60" r="4" fill="#FE4E00" />
+                                <circle cx="370" cy="40" r="4" fill="#FE4E00" />
+                                <circle cx="430" cy="25" r="4" fill="#FE4E00" />
+                            </svg>
+                        </div>
+                        <div class="flex justify-between items-center mt-4 text-xs font-bold text-on-surface-variant/80">
+                            <span data-i18n="dash_chart_footnote">* Red line represents the target yield benchmark across different processing chambers.</span>
+                            <span class="text-primary hover:underline cursor-pointer" data-i18n="dash_chart_detail" onclick="alert('Loading comprehensive Fab yield report...')">Detail Analytics &rarr;</span>
+                        </div>
+                    </div>
+
+                    <!-- Study Goals / Roadmap -->
+                    <div class="bg-white border border-outline-variant rounded-2xl p-6 shadow-sm">
+                        <h3 class="text-lg font-bold mb-4 text-dark-plum flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">assignment</span>
+                            <span data-i18n="dash_checklist_title">Active Study Checklist</span>
+                        </h3>
+                        <div class="space-y-3" id="checklist-container">
+                            <!-- Populated dynamically via pc-app.js -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Column 2: Stats Cards & Side Actions -->
+                <div class="space-y-6">
+                    <!-- Progress Card -->
+                    <div class="bg-dark-plum text-background rounded-2xl p-6 relative overflow-hidden shadow-md">
+                        <div class="relative z-10">
+                            <h4 class="text-xs uppercase tracking-widest text-background/70 mb-1" data-i18n="dash_streak_title">Study Streak</h4>
+                            <div class="flex items-baseline gap-2 mb-4">
+                                <span class="text-4xl font-extrabold" id="streak-count">5 Days</span>
+                                <span class="text-xs text-secondary font-bold" data-i18n="dash_streak_desc">120% target achieved</span>
+                            </div>
+                            <div class="w-full h-2.5 bg-white/20 rounded-full mb-3">
+                                <div class="h-full bg-secondary rounded-full transition-all duration-500" style="width: 75%"></div>
+                            </div>
+                            <p class="text-xs text-background/60" data-i18n="dash_streak_sub">Next milestone: 7-day streak bonus reward</p>
+                        </div>
+                        <span class="material-symbols-outlined absolute -bottom-6 -right-6 text-white/5 text-9xl">emoji_events</span>
+                    </div>
+
+                    <!-- Process Node Distribution Card -->
+                    <div class="bg-white border border-outline-variant rounded-2xl p-6 shadow-sm">
+                        <h3 class="font-bold text-sm text-dark-plum uppercase tracking-widest mb-4" data-i18n="dash_dist_title">Knowledge Distribution</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <div class="flex justify-between text-xs font-bold text-dark-plum/80 mb-1">
+                                    <span>EUV & Nano Litho</span>
+                                    <span>92%</span>
+                                </div>
+                                <div class="w-full h-2 bg-background rounded-full">
+                                    <div class="h-full bg-primary rounded-full" style="width: 92%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-bold text-dark-plum/80 mb-1">
+                                    <span>Advanced 3D Packaging</span>
+                                    <span>78%</span>
+                                </div>
+                                <div class="w-full h-2 bg-background rounded-full">
+                                    <div class="h-full bg-secondary rounded-full" style="width: 78%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-bold text-dark-plum/80 mb-1">
+                                    <span>HBM & Memory Subsystems</span>
+                                    <span>65%</span>
+                                </div>
+                                <div class="w-full h-2 bg-background rounded-full">
+                                    <div class="h-full bg-dark-plum/30 rounded-full" style="width: 65%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Q&A Prompt shortcuts -->
+                    <div class="bg-white border border-outline-variant rounded-2xl p-6 shadow-sm">
+                        <h3 class="font-bold text-sm text-dark-plum uppercase tracking-widest mb-3" data-i18n="dash_quick_qa_title">Ask Assistant Quick Links</h3>
+                        <div class="flex flex-col gap-2">
+                            <button onclick="navigateTo('qa'); triggerQuickQuestion('Compare HBM3e thermal vias vs hybrid bonding');" class="text-left text-xs bg-background/50 hover:bg-background border border-outline-variant/60 p-2.5 rounded-lg text-dark-plum font-semibold transition-all">
+                                How does HBM3e thermal vias stack up?
+                            </button>
+                            <button onclick="navigateTo('qa'); triggerQuickQuestion('Gate-All-Around (GAA) transistor structural advantages');" class="text-left text-xs bg-background/50 hover:bg-background border border-outline-variant/60 p-2.5 rounded-lg text-dark-plum font-semibold transition-all">
+                                GAA vs FinFET transistor architecture
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 3: NEWS FEED VIEW -->
+        <section id="view-feed" class="page-view fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Left panel: News list -->
+                <div class="lg:col-span-8 space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-outline-variant pb-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-primary" data-i18n="feed_title">Industry News Feed</h2>
+                            <p class="text-sm text-on-surface-variant" data-i18n="feed_desc">Real-time intelligence from the semiconductor manufacturing ecosystem.</p>
+                        </div>
+                        <!-- Sources Tabs -->
+                        <div class="flex gap-2">
+                            <button onclick="filterFeed('all')" id="feed-filter-all" class="px-4 py-1.5 rounded-full bg-primary text-white font-bold text-xs uppercase shadow-sm">All</button>
+                            <button onclick="filterFeed('Samsung')" id="feed-filter-Samsung" class="px-4 py-1.5 rounded-full border border-outline-variant bg-white text-on-surface-variant font-bold text-xs uppercase hover:bg-background transition-all">Samsung</button>
+                            <button onclick="filterFeed('SK Hynix')" id="feed-filter-SKHynix" class="px-4 py-1.5 rounded-full border border-outline-variant bg-white text-on-surface-variant font-bold text-xs uppercase hover:bg-background transition-all">SK Hynix</button>
+                        </div>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div class="relative bg-white border border-outline-variant rounded-xl p-3 shadow-sm flex items-center">
+                        <span class="material-symbols-outlined text-on-surface-variant/80 ml-2">search</span>
+                        <input id="feed-search-input" onkeyup="searchFeed()" data-i18n="feed_placeholder" class="w-full bg-transparent border-none focus:ring-0 text-sm ml-2 placeholder:text-on-surface-variant/60 text-dark-plum" placeholder="Search news articles by keywords (e.g. TSV, GAA, EUV)..." type="text"/>
+                    </div>
+
+                    <!-- Dynamic News Feed List Container -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="news-feed-grid">
+                        <!-- Populated dynamically via pc-app.js -->
+                    </div>
+                </div>
+
+                <!-- Right panel: Quick action / add article -->
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="bg-white border border-outline-variant rounded-2xl p-6 shadow-sm">
+                        <h3 class="text-lg font-bold mb-4 text-dark-plum flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">add_circle</span>
+                            <span data-i18n="feed_share_title">Share Industry Intel</span>
+                        </h3>
+                        <form id="add-article-form" class="space-y-4" onsubmit="handleNewArticle(event)">
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-dark-plum/70 mb-1" data-i18n="feed_form_title">Article Title</label>
+                                <input id="article-title" required class="w-full border border-outline-variant rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary" placeholder="Enter tech update title..." type="text"/>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-dark-plum/70 mb-1" data-i18n="feed_form_source">Company / Tag</label>
+                                <select id="article-source" class="w-full border border-outline-variant rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary">
+                                    <option value="Samsung">Samsung Electronics</option>
+                                    <option value="SK Hynix">SK Hynix</option>
+                                    <option value="TSMC">TSMC</option>
+                                    <option value="ASML">ASML</option>
+                                    <option value="Intel">Intel</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-dark-plum/70 mb-1" data-i18n="feed_form_desc">Short Description</label>
+                                <textarea id="article-desc" required rows="3" class="w-full border border-outline-variant rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-primary" placeholder="Provide a summary of the technical or market update..."></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-secondary transition-all uppercase tracking-widest text-xs" data-i18n="feed_form_submit">
+                                Post to Feed
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Info Spotlight -->
+                    <div class="bg-secondary text-white p-6 rounded-2xl shadow-sm relative overflow-hidden">
+                        <h4 class="text-xs uppercase tracking-widest opacity-80 mb-1" data-i18n="feed_trending_tag">Trending Topic</h4>
+                        <h3 class="text-xl font-bold mb-3" data-i18n="feed_trending_title">High-NA EUV Integration</h3>
+                        <p class="text-xs opacity-90 leading-relaxed mb-4" data-i18n="feed_trending_desc">
+                            Fab installation requirements are shifting as high-NA lithography introduces heavier lens columns and thermal correction complexities.
+                        </p>
+                        <button onclick="navigateTo('qa'); triggerQuickQuestion('EUV lithography line edge roughness causes');" class="text-xs font-bold bg-white text-secondary px-4 py-2 rounded-lg hover:shadow-md transition-all" data-i18n="feed_trending_btn">
+                            Explore Q&amp;A Analysis
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 4: REVIEW NOTES VIEW -->
+        <section id="view-review" class="page-view fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Left Sidebar: Filters & Calendar -->
+                <div class="lg:col-span-4 space-y-6">
+                    <!-- Date vs Process Tabs -->
+                    <div class="flex p-1 bg-white border border-outline-variant/60 rounded-xl shadow-inner">
+                        <button onclick="switchReviewTab('date')" id="review-tab-date" data-i18n="review_tab_date" class="flex-1 py-2 text-center rounded-lg text-xs font-bold transition-all duration-300 bg-primary text-white">
+                            BY DATE
+                        </button>
+                        <button onclick="switchReviewTab('process')" id="review-tab-process" data-i18n="review_tab_process" class="flex-1 py-2 text-center rounded-lg text-xs font-bold transition-all duration-300 text-on-surface-variant hover:bg-background">
+                            BY PROCESS
+                        </button>
+                    </div>
+
+                    <!-- Calendar Component -->
+                    <div id="review-calendar-panel" class="bg-white border border-outline-variant rounded-2xl p-5 shadow-sm">
+                        <div class="flex justify-between items-center mb-4">
+                            <span class="text-xs font-extrabold text-dark-plum tracking-wider uppercase">JUNE 2026</span>
+                            <div class="flex gap-1">
+                                <button class="w-6 h-6 flex items-center justify-center hover:bg-background rounded-lg text-dark-plum transition-colors">
+                                    <span class="material-symbols-outlined text-lg">chevron_left</span>
+                                </button>
+                                <button class="w-6 h-6 flex items-center justify-center hover:bg-background rounded-lg text-dark-plum transition-colors">
+                                    <span class="material-symbols-outlined text-lg">chevron_right</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1 text-center mb-2 text-[10px] font-bold text-on-surface-variant/60 uppercase">
+                            <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1 text-center text-xs font-semibold" id="calendar-days">
+                            <!-- Populated via javascript -->
+                        </div>
+                    </div>
+
+                    <!-- Process List Selector -->
+                    <div id="review-process-panel" class="hidden bg-white border border-outline-variant rounded-2xl p-5 shadow-sm space-y-2">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-dark-plum/70 mb-3" data-i18n="review_chip_title">Filter by Process Stage</h4>
+                        <div class="flex flex-wrap gap-2" id="process-chips-container">
+                            <!-- Chips -->
+                        </div>
+                    </div>
+
+                    <!-- Add Note Quick Form -->
+                    <div class="bg-white border border-outline-variant rounded-2xl p-5 shadow-sm">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-dark-plum/70 mb-3" data-i18n="review_create_title">Create Study Note</h3>
+                        <form onsubmit="handleNewNote(event)" class="space-y-3">
+                            <div>
+                                <input id="note-title" required class="w-full text-xs border border-outline-variant rounded-lg p-2 focus:ring-2 focus:ring-primary" placeholder="Note Title..." type="text"/>
+                            </div>
+                            <div>
+                                <select id="note-process" class="w-full text-xs border border-outline-variant rounded-lg p-2 focus:ring-2 focus:ring-primary">
+                                    <option value="Photolithography">Photolithography</option>
+                                    <option value="Etching">Etching</option>
+                                    <option value="Deposition">Deposition & Thin Film</option>
+                                    <option value="Oxidation">Oxidation</option>
+                                    <option value="Ion Implantation">Ion Implantation</option>
+                                    <option value="Metallization">Metallization</option>
+                                    <option value="EDS">EDS</option>
+                                    <option value="Packaging">Packaging</option>
+                                </select>
+                            </div>
+                            <div>
+                                <textarea id="note-content" required rows="3" class="w-full text-xs border border-outline-variant rounded-lg p-2 focus:ring-2 focus:ring-primary" placeholder="Content..."></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-primary text-white py-2 rounded-lg font-bold hover:bg-secondary transition-all uppercase tracking-widest text-[10px]" data-i18n="review_create_submit">
+                                Add Review Note
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Right Area: Notes List -->
+                <div class="lg:col-span-8 space-y-6">
+                    <div class="flex justify-between items-center border-b border-outline-variant pb-3">
+                        <h3 class="text-lg font-bold text-dark-plum uppercase tracking-wider" id="notes-list-header" data-i18n="review_notes_timeline">Notes Timeline</h3>
+                        <span class="text-xs text-on-surface-variant font-semibold" id="notes-counter">Showing all notes</span>
+                    </div>
+
+                    <div class="space-y-4" id="review-notes-container">
+                        <!-- Populated dynamically via pc-app.js -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 5: Q&A STUDY ASSISTANT VIEW -->
+        <section id="view-qa" class="page-view fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Left panel: QA Chat Console -->
+                <div class="lg:col-span-8 bg-white border border-outline-variant rounded-2xl shadow-sm flex flex-col h-[70vh]">
+                    <div class="bg-primary p-4 rounded-t-2xl flex justify-between items-center">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-white animate-pulse">psychology</span>
+                            <span class="font-bold text-white text-sm uppercase tracking-widest" data-i18n="qa_ai_title">Semiconductor AI Assistant</span>
+                        </div>
+                        <span class="text-xs bg-white/20 text-white font-bold px-2 py-1 rounded">Model: gemini-3.5-flash</span>
+                    </div>
+
+                    <!-- Messages Log -->
+                    <div id="qa-messages-log" class="flex-1 p-6 overflow-y-auto space-y-6">
+                        <!-- Initial greetings and responses -->
+                    </div>
+
+                    <!-- Input Bar -->
+                    <form onsubmit="handleSendQuestion(event)" class="border-t border-outline-variant p-4 bg-background/20 flex gap-2">
+                        <input id="qa-input-field" required data-i18n="qa_input_placeholder" class="flex-1 bg-white border border-outline-variant rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary focus:outline-none" placeholder="Ask about TSVs, EUV stochastics, GAA architecture, packaging..."/>
+                        <button type="submit" class="bg-primary text-white px-6 rounded-xl font-bold hover:bg-secondary transition-all flex items-center justify-center">
+                            <span class="material-symbols-outlined">send</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Right panel: Predefined technical prompts & blueprints -->
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="bg-white border border-outline-variant rounded-2xl p-6 shadow-sm">
+                        <h3 class="font-bold text-sm text-dark-plum uppercase tracking-widest mb-4" data-i18n="qa_blueprints_title">Technical Blueprints</h3>
+                        <p class="text-xs text-on-surface-variant mb-4" data-i18n="qa_blueprints_desc">Click a blueprint to populate it in the chat console and analyze its structural schematics.</p>
+                        <div class="space-y-3">
+                            <div onclick="triggerQuickQuestion('Compare HBM3e thermal vias vs hybrid bonding')" class="border border-outline-variant/60 hover:border-secondary p-3.5 rounded-xl cursor-pointer hover:bg-background/20 transition-all">
+                                <h4 class="font-bold text-xs text-dark-plum">HBM3e Stack Thermal Vias</h4>
+                                <p class="text-[11px] text-on-surface-variant mt-1">Comparison of vertical interconnect density and thermal performance characteristics.</p>
+                            </div>
+                            <div onclick="triggerQuickQuestion('EUV lithography line edge roughness causes')" class="border border-outline-variant/60 hover:border-secondary p-3.5 rounded-xl cursor-pointer hover:bg-background/20 transition-all">
+                                <h4 class="font-bold text-xs text-dark-plum">EUV stochastic noise & LER</h4>
+                                <p class="text-[11px] text-on-surface-variant mt-1">Impact of photon shot noise and photoresist chemistry on sub-3nm nodes.</p>
+                            </div>
+                            <div onclick="triggerQuickQuestion('Gate-All-Around (GAA) transistor structural advantages')" class="border border-outline-variant/60 hover:border-secondary p-3.5 rounded-xl cursor-pointer hover:bg-background/20 transition-all">
+                                <h4 class="font-bold text-xs text-dark-plum">GAA Transistor vs FinFET</h4>
+                                <p class="text-[11px] text-on-surface-variant mt-1">Electrostatic control, nanosheet stacking, and sub-threshold leakage reductions.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Help Box -->
+                    <div class="bg-dark-plum text-background p-6 rounded-2xl">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-secondary mb-2" data-i18n="qa_didyouknow_title">Did you know?</h4>
+                        <p class="text-xs opacity-90 leading-relaxed" data-i18n="qa_didyouknow_desc">
+                            Through-Silicon Vias (TSVs) allow memory cells to stack directly over logic, dramatically reducing latency compared to traditional routing lanes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Global Footer -->
+    <footer class="border-t border-outline-variant/60 bg-white py-8 mt-12 text-center text-xs font-bold text-on-surface-variant/70">
+        <p>&copy; 2026 SemiLog Semiconductor Intelligence. All Rights Reserved. Built with High-Energy Logic.</p>
+    </footer>
+
+    <!-- Article Details Modal -->
+    <div id="article-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-dark-plum/60 backdrop-blur-sm p-4">
+        <div class="bg-white border-2 border-outline-variant max-w-2xl w-full rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-primary p-4 text-white flex justify-between items-center">
+                <span class="font-bold text-xs uppercase tracking-widest" id="modal-article-tag">News Details</span>
+                <button onclick="closeArticleModal()" class="text-white hover:text-secondary transition-colors">
+                    <span class="material-symbols-outlined font-bold">close</span>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-6 flex-1">
+                <div class="flex justify-between items-center text-xs font-bold text-on-surface-variant/60">
+                    <span id="modal-article-source" class="text-primary uppercase">SAMSUNG</span>
+                    <span id="modal-article-date">June 18, 2026</span>
+                </div>
+                <h3 class="text-2xl font-extrabold text-dark-plum leading-tight" id="modal-article-title">Article Title</h3>
+
+                <div class="h-48 w-full rounded-xl overflow-hidden bg-slate-100" id="modal-article-img-container">
+                    <img id="modal-article-img" src="" class="w-full h-full object-cover" alt="Article image">
+                </div>
+
+                <div class="text-sm text-dark-plum leading-relaxed whitespace-pre-line border-t border-outline-variant/30 pt-4" id="modal-article-body">
+                    Full article body text.
+                </div>
+
+                <!-- 3 Line Summary -->
+                <div class="bg-background border-l-4 border-secondary p-5 rounded-r-xl space-y-2">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-secondary flex items-center gap-1.5" id="modal-summary-title">
+                        <span class="material-symbols-outlined text-sm">summarize</span>
+                        3-Line Summary / 3줄 요약
+                    </h4>
+                    <ul class="list-disc list-inside text-xs text-dark-plum/90 font-medium space-y-1" id="modal-article-summary">
+                        <li>Summary line 1</li>
+                        <li>Summary line 2</li>
+                        <li>Summary line 3</li>
+                    </ul>
+                </div>
+
+                <!-- Ask & Save to Notes Section -->
+                <div class="border-t border-outline-variant/30 pt-4 space-y-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
+                        <span class="material-symbols-outlined text-sm">psychology</span>
+                        <span data-i18n="modal_ask_title">Ask & Save to Study Notes</span>
+                    </h4>
+                    <div class="flex gap-2">
+                        <input id="modal-article-question" class="flex-1 text-xs border border-outline-variant rounded-lg p-2.5 focus:ring-2 focus:ring-primary focus:outline-none" placeholder="Ask a question about this article to save to Notes..." data-i18n="modal_ask_placeholder"/>
+                        <button onclick="handleAskInModal()" class="bg-primary hover:bg-secondary text-white text-xs font-bold uppercase px-4 py-2.5 rounded-lg transition-all shrink-0 flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm">save</span>
+                            <span data-i18n="modal_ask_btn">Ask & Save</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Script -->
+    <script src="pc-app.js"></script>
+</body>
 </html>

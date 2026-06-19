@@ -28,7 +28,7 @@ jobs:
           VER=$(date +%Y%m%d%H%M%S)
           sed -i "s/style\.css\"/style.css?v=${VER}\"/g" mobile.html
           sed -i "s/app\.js\"/app.js?v=${VER}\"/g"       mobile.html
-          sed -i "s/pc-app\.js\"/pc-app.js?v=${VER}\"/g" pc.html
+          sed -i "s/pc-app\.js\"/pc-app.js?v=${VER}\"/g" index.html
 
       - uses: actions/configure-pages@v4
       - uses: actions/upload-pages-artifact@v3
